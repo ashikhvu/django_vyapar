@@ -84,8 +84,12 @@ urlpatterns = [
     path('distributor_reject_company/<id>', views.distributor_reject_company, name='distributor_reject_company'),
     path('dcompany_details_overview/<id>', views.dcompany_details_overview, name='dcompany_details_overview'),
     path('distributor_profile', views.distributor_profile, name='distributor_profile'),
+    # ========================================   ASHIKH V U (START) ======================================================
 
+    path('create_item', views.create_item, name='create_item'),
+    path('items_list', views.items_list, name='items_list'),
 
+    # ========================================   ASHIKH V U (END) ======================================================
 
     
     

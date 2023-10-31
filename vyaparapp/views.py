@@ -9,6 +9,12 @@ from django.http.response import JsonResponse
 from django.utils.crypto import get_random_string
 from datetime import date
 from datetime import timedelta
+# =================================== ASHIKH V U (START)==================================
+
+from django.contrib.auth.decorators import login_required
+
+# =================================== ASHIKH V U (END)==================================
+
 
 # Create your views here.
 def home(request):
@@ -722,8 +728,17 @@ def distributor_profile(request):
   return render(request,'distributor/distributor_profile.html',{'distributor':distributor})
 
 
+# ========================================   ASHIKH V U (START) ======================================================
 
+# @login_required(login_url=login)
+def create_item(request):
+  print('-------entered-----------')
+  return render(request,'company/create_item.html',{})
 
+def items_list(request):
+  return render(request,'company/items_list.html',{})
+
+# ========================================   ASHIKH V U (END) ======================================================
 
 
 
