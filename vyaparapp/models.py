@@ -1,3 +1,4 @@
+from pickle import TRUE
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -75,3 +76,10 @@ class modules_list(models.Model):
 
     update_action = models.IntegerField(null=True,default=0) 
     status = models.CharField(max_length=100,null=True,default='New')      
+
+# ========================= ASHIKH V U ===========================
+
+# class ItemModel(models.Model):
+#     user_staff = models.ForeignKey(staff_details,on_delete=models.CASCADE,null=True,blank=True)
+#     company = models.ForeignKey(company,on_delete= models.CASCADE,null=True,blank=True)
+#     item_name = models.
