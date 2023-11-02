@@ -77,9 +77,31 @@ class modules_list(models.Model):
     update_action = models.IntegerField(null=True,default=0) 
     status = models.CharField(max_length=100,null=True,default='New')      
 
-# ========================= ASHIKH V U ===========================
+# ========================= ASHIKH V U (START)===========================
 
-# class ItemModel(models.Model):
-#     user_staff = models.ForeignKey(staff_details,on_delete=models.CASCADE,null=True,blank=True)
-#     company = models.ForeignKey(company,on_delete= models.CASCADE,null=True,blank=True)
-#     item_name = models.
+class ItemModel(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
+    company = models.ForeignKey(company,on_delete= models.CASCADE,null=True,blank=True)
+    item_name = models.CharField(max_length=255)
+    item_hsn = models.PositiveIntegerField(null=True)
+    item_unit = models.CharField(max_length=255)
+    item_taxable = models.CharField(max_length=255)
+    item_gst = models.CharField(max_length=255,null=True)
+    item_igst = models.CharField(max_length=255,null=True)
+    item_sale_price = models.PositiveIntegerField()
+    item_purchase_price = models.PositiveBigIntegerField()
+    item_opening_stock = models.PositiveBigIntegerField(default=0)
+    item_at_price = models.PositiveBigIntegerField(default=0)
+    item_date = models.DateField()
+    item_min_stock_maintain = models.PositiveBigIntegerField(default=0)
+
+class UnitModel(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
+    company = models.ForeignKey(company,on_delete= models.CASCADE,null=True,blank=True)
+    unit_name = models.CharField(max_length=255)
+
+    
+
+# ========================= ASHIKH V U (END)===========================
+
+

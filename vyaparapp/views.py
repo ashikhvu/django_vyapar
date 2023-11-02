@@ -729,15 +729,135 @@ def distributor_profile(request):
 
 
 # ========================================   ASHIKH V U (START) ======================================================
+from django.template.response import TemplateResponse
+from django.db.models import Q
 
-# @login_required(login_url=login)
-def create_item(request):
-  print('-------entered-----------')
-  return render(request,'company/create_item.html',{})
+@login_required(login_url='login')
+def item_create(request):
+  item_units = UnitModel.objects.filter(user=request.user.id)
+  return render(request,'company/item_create.html',{'item_units':item_units})
 
+@login_required(login_url='login')
 def items_list(request):
-  return render(request,'company/items_list.html',{})
+  get_company_id_using_user_id = company.objects.get(user=request.user.id)
+  all_items = ItemModel.objects.filter(company=get_company_id_using_user_id.id)
+  return render(request,'company/items_list.html',{'all_items':all_items,})
 
+@login_required(login_url='login')
+def item_create_new(request):
+  if request.method=='POST':
+    user = User.objects.get(id=request.user.id)
+    company_user_data = company.objects.get(user=request.user.id)
+    item_name = request.POST.get('item_name')
+    item_hsn = request.POST.get('item_hsn')
+    item_unit = request.POST.get('item_unit')
+    item_taxable = request.POST.get('item_taxable')
+    item_gst = request.POST.get('item_gst')
+    item_igst = request.POST.get('item_igst')
+    item_sale_price = request.POST.get('item_sale_price')
+    item_purchase_price = request.POST.get('item_purchase_price')
+    item_opening_stock = request.POST.get('item_opening_stock')
+    item_at_price = request.POST.get('item_at_price')
+    item_date = request.POST.get('item_date')
+    item_min_stock_maintain = request.POST.get('item_min_stock_maintain')
+    item_data = ItemModel(user=user,
+                          company=company_user_data,
+                          item_name=item_name,
+                          item_hsn=item_hsn,
+                          item_unit=item_unit,
+                          item_taxable=item_taxable,
+                          item_gst=item_gst,
+                          item_igst=item_igst,
+                          item_sale_price=item_sale_price,
+                          item_purchase_price=item_purchase_price,
+                          item_opening_stock=item_opening_stock,
+                          item_at_price=item_at_price,
+                          item_date=item_date,
+                          item_min_stock_maintain=item_min_stock_maintain)
+    item_data.save()
+    print(f'user : {user}\ncompany_user_data {company_user_data}')
+    # print(f'item_name : {item_name}\nitem_hsn : {item_hsn}\nitem_unit : {item_unit}\nitem_taxable : {item_taxable}\n')
+    # print(f'item_gst : {item_gst}\nitem_igst : {item_igst}\nitem_sale_price : {item_sale_price}\nitem_purchase_price : {item_purchase_price}\n')
+    # print(f'item_opening_stock : {item_opening_stock}\nitem_at_price : {item_at_price}\nitem_date : {item_date}\nitem_min_stock_maintain : {item_min_stock_maintain}\n')
+  return redirect('item_create')
+
+
+@login_required(login_url='login')
+def item_delete(request,pk):
+  get_company_id_using_user_id = company.objects.get(user=request.user.id)
+  item_to_delete = ItemModel.objects.get(id=pk)
+  item_to_delete.delete()
+  return redirect('items_list')
+
+
+@login_required(login_url='login')
+def item_view_or_edit(request,pk):
+  item = ItemModel.objects.get(id=pk)
+  item_units = UnitModel.objects.filter(user=request.user.id)
+  return render(request,'company/item_view_or_edit.html',{'item':item,
+                                                          'item_units':item_units,})
+
+  
+@login_required(login_url='login')
+def item_unit_create(request):
+  if request.method=='POST':
+    user = User.objects.get(id=request.user.id)
+    company_user_data = company.objects.get(user=request.user.id)
+    item_unit_name = request.POST.get('item_unit_name')
+    unit_data = UnitModel(user=user,company=company_user_data,unit_name=item_unit_name)
+    unit_data.save()
+  return redirect('item_create')
+
+  
+@login_required(login_url='login')
+def item_update(request,pk):
+  if request.method=='POST':
+    user = User.objects.get(id=request.user.id)
+    company_user_data = company.objects.get(user=request.user.id)
+    item_name = request.POST.get('item_name')
+    item_hsn = request.POST.get('item_hsn')
+    item_unit = request.POST.get('item_unit')
+    item_taxable = request.POST.get('item_taxable')
+    item_gst = request.POST.get('item_gst')
+    item_igst = request.POST.get('item_igst')
+    if item_taxable == 'Non Taxable':
+      item_gst = 'GST0[0%]'
+      item_igst = 'IGST0[0%]'
+    item_sale_price = request.POST.get('item_sale_price')
+    item_purchase_price = request.POST.get('item_purchase_price')
+    item_opening_stock = request.POST.get('item_opening_stock')
+    item_at_price = request.POST.get('item_at_price')
+    item_date = request.POST.get('item_date')
+    item_min_stock_maintain = request.POST.get('item_min_stock_maintain')
+    item_data = ItemModel.objects.get(id=pk)
+
+    item_data.user = user
+    item_data.company_user_data = company_user_data
+    item_data.item_name = item_name
+    item_data.item_hsn = item_hsn
+    item_data.item_unit = item_unit
+    item_data.item_taxable = item_taxable
+    item_data.item_gst = item_gst
+    item_data.item_igst = item_igst
+    item_data.item_sale_price = item_sale_price
+    item_data.item_purchase_price = item_purchase_price
+    item_data.item_opening_stock = item_opening_stock
+    item_data.item_at_price = item_at_price
+    item_data.item_date = item_date
+    item_data.item_min_stock_maintain = item_min_stock_maintain
+
+    item_data.save()
+    print('\nupdated')
+  return redirect('item_view_or_edit',pk)
+
+  
+@login_required(login_url='login')
+def item_search_filter(request):
+  search_string = request.POST.get('searching_item')
+  items_filtered = ItemModel.objects.filter(user=request.user.id)
+  items_filtered = items_filtered.filter(Q(item_name__icontains=search_string))
+  item_unit_name = request.POST.get('item_unit_name')
+  return TemplateResponse(request,'company/item_search_filter.html',{'all_items':items_filtered})
 # ========================================   ASHIKH V U (END) ======================================================
 
 

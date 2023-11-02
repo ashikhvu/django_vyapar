@@ -86,8 +86,14 @@ urlpatterns = [
     path('distributor_profile', views.distributor_profile, name='distributor_profile'),
     # ========================================   ASHIKH V U (START) ======================================================
 
-    path('create_item', views.create_item, name='create_item'),
+    path('item_create', views.item_create, name='item_create'),
     path('items_list', views.items_list, name='items_list'),
+    path('item_create_new', views.item_create_new, name='item_create_new'),
+    path('item_delete/<int:pk>', views.item_delete, name='item_delete'),
+    path('item_view_or_edit/<int:pk>', views.item_view_or_edit, name='item_view_or_edit'),
+    path('item_unit_create', views.item_unit_create, name='item_unit_create'),
+    path('item_update/<int:pk>', views.item_update, name='item_update'),
+    path('item_search_filter', views.item_search_filter, name='item_search_filter'),
 
     # ========================================   ASHIKH V U (END) ======================================================
 

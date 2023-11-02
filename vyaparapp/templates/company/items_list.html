@@ -4,6 +4,10 @@
 
 {% block content %}
 {% load static %}
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script src="https://unpkg.com/htmx.org@1.9.6" integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" crossorigin="anonymous"></script>
+
+
 <style>
     .bs{
         box-shadow: 2px 2px 10px 3px rgba(0, 0, 0, 0.397);
@@ -63,44 +67,66 @@
             <div class="card bg-light bs"style="height:100%;">
                 <div class="row m-0">
                     <div class="col-12 p-4 pt-3" style="z-index:2">
-                        <div class="d-flex justify-content-between">
-                            <span id="search_item" class="fa fa-search p-2 tb bg-info text-light ms-2 mt-1" style="border-radius: 50%;"></span>
-                            <a id="add_item_btn" class="btn btn-sm rounded p-2 btn_add" href="{% url 'create_item' %}"><span class="fa fa-plus"></span> Add Item</a>
-                        </div>
-                        <div class="position-relative">
-                            <div class="position-absolute end-0" style="margin-top:0.5rem;margin-right:0.7rem">
-                                <span hidden id="close_seacrh" class="fa fa-times fs-4 tr"></span>
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            <div class="d-flex justify-content-between">
+                                <span id="search_item" class="fa fa-search tb bg-info text-light ms-2 mt-1" style="border-radius: 50%;padding: 0.77rem;"></span>
+                                <a id="add_item_btn" class="btn btn-sm rounded p-2 mt-1 btn_add" href="{% url 'item_create' %}"><span class="fa fa-plus"></span> Add Item</a>
                             </div>
-                        </div>
-                        <input hidden id="search_item_input" class="form-control border-dark text-dark" type="text" placeholder="search here..">
+                            <div class="position-relative">
+                                <div class="position-absolute end-0" style="margin-top:0.5rem;margin-right:0.7rem">
+                                    <span hidden id="close_seacrh" class="fa fa-times fs-4 tr"
+                                    hx-post="{% url 'item_search_filter' %}"
+                                    hx-trigger="click delay:0.1s"
+                                    hx-target="#item_search_filter_target"
+                                    ></span>
+                                </div>
+                            </div>
+                        
+                            <input hidden id="search_item_input" class="form-control border-dark text-dark" type="text" placeholder="search here.." name="searching_item"
+                            hx-post="{% url 'item_search_filter' %}"
+                            hx-trigger="keyup"
+                            hx-target="#item_search_filter_target"
+                            >
+                        </form>
                     </div>
                     <div class="ps-3 pe-3">
                         <hr class="p-0 m-0">
                     </div>
                     <div class="col-12 p-3 pt-0">
-                        <table class="table w-100 table-light table-striped table-hover">
-                            <thead class="bg-primary">
-                                <th class="text-start fs-2 tb">ITEM</th>
-                                <th class="text-end fs-2 tb">QUANTITY</th>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="text-start fs-2 fw-bold text-dark">BOTTLE</td>
-                                    <td class="text-end fs-2 fw-bolder" style="color: green;">
-                                        653
-                                        <div class="btn-group mb-1">
-                                            <button style="border: none;background: none;" type="button" class="ropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <span class="fa fa-ellipsis-v text-dark fs-1 ps-2"></span>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                              <li><a class="dropdown-item fw-bold tb" href=""><span class="fa fa-eye pe-2 tg"></span> View / Edit</a></li>
-                                              <li><a class="dropdown-item fw-bold tb" href=""><span class="fa fa-trash-alt tr" style="padding-inline-start: 0.1rem;padding-inline-end:0.7rem ;"></span> Delete</a></li>
-                                            </ul>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        {% if all_items %}
+                        <div id="item_search_filter_target">
+                            <table class="table w-100 table-light table-striped table-hover">
+                                <thead class="bg-primary">
+                                    <th class="text-start fs-2 tb">ITEM</th>
+                                    <th class="text-end fs-2 tb">QUANTITY</th>
+                                </thead>
+                                <tbody>
+                                    {% for i in all_items %}
+                                    <tr class="item_lists_hide">
+                                        <td style="cursor:pointer" class="text-start fs-2 fw-bold text-dark">{{ i.item_name|capfirst }}</td>
+                                        <td class="text-end fs-2 fw-bolder" style="color: green;">
+                                            {{ i.item_opening_stock }}
+                                            <div class="btn-group mb-1">
+                                                <button style="border: none;background: none;" type="button" class="ropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <span class="fa fa-ellipsis-v text-dark fs-1 ps-2"></span>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item fw-bold tb" href="{% url 'item_view_or_edit' i.id %}"><span class="fa fa-eye pe-2 tg"></span> View / Edit</a></li>
+                                                <li><a class="dropdown-item fw-bold tb" type="button" onclick="confirm_delete({{ i.id }})"><span class="fa fa-trash-alt tr" style="padding-inline-start: 0.1rem;padding-inline-end:0.7rem ;"></span> Delete</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center mt-2">
+                            <small>Currently no items are available</small>
+                        </div>
+                        {% endif %}
                     </div>
                    
                 </div>
@@ -206,12 +232,46 @@
     })
     $(document).ready(function(){
         $('#close_seacrh').click(function(){
+            $('#search_item_input').val('')
             $('#search_item_input').attr('hidden',true)
             $('#search_item').attr('hidden',false)
             $('#add_item_btn').attr('hidden',false)
             $('#close_seacrh').attr('hidden',true)
         })
     })
+    function confirm_delete(Id)
+    {
+        swal({
+            title: "Confirmation !",
+            text: "Do you want to Delete this item?",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        })
+        .then((willDelete) => {
+            if (willDelete) {
+                swal({
+                    title: "Deleted !",
+                    text: "Item Deleted Successfilly!",
+                    icon: "success",
+                    buttons: false,
+                })
+                // 
+                .then((willDelete) => {
+                if (willDelete) {
+                    // Redirect to the delete_teacher view with the teacher's ID
+                    window.location.href = "{% url 'item_delete' 0 %}".replace('0', Id);
+                    
+                } else {
+                    window.location.href = "{% url 'item_delete' 0 %}".replace('0', Id);
+                }
+            });
+                // 
+            } else {
+                swal("Action Cancelled!");
+            }
+        });
+    }
 </script>
 
 {% endblock  %}
