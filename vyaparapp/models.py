@@ -100,7 +100,18 @@ class UnitModel(models.Model):
     company = models.ForeignKey(company,on_delete= models.CASCADE,null=True,blank=True)
     unit_name = models.CharField(max_length=255)
 
-    
+class TransactionModel(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
+    company = models.ForeignKey(company,on_delete= models.CASCADE,null=True,blank=True)
+    item = models.ForeignKey(ItemModel,on_delete=models.CASCADE,null=True,blank=True)
+    trans_type = models.CharField(max_length=255)
+    trans_invoice = models.PositiveBigIntegerField(null=True,blank=True)
+    trans_user_name = models.CharField(max_length=255)
+    trans_date = models.DateTimeField()
+    trans_qty = models.PositiveBigIntegerField(default=0)
+    trans_price = models.PositiveBigIntegerField(default=0)
+    trans_status = models.CharField(max_length=255)
+    trans_created_date = models.DateTimeField(auto_now_add=True,null=True)
 
 # ========================= ASHIKH V U (END)===========================
 

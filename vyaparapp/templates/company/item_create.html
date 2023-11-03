@@ -79,7 +79,7 @@
                         <div class="form-check form-switch d-flex">
                           <label id="lbl1" class="form-check-label fw-bolder" for="flexSwitchCheckChecked">PRODUCTS</label>
                           <input class="form-check-input fs-5 ms-2 me-2" type="checkbox" role="switch" id="flexSwitchCheckChecked"
-                            checked>
+                            >
                           <label id="lbl2" class="form-check-label fw-bolder" for="flexSwitchCheckChecked">SERVICES</label>
                         </div>
                       </div>
@@ -284,6 +284,9 @@
     if ($('#flexSwitchCheckChecked').prop('checked')) {
       $('#lbl2').css({ 'color': 'blue' })
     }
+    else{
+      $('#lbl1').css({ 'color': 'blue' })
+    }
     $('#flexSwitchCheckChecked').on('change load', function () {
       if ($('#flexSwitchCheckChecked').prop('checked')) {
         $('#lbl2').css({ 'color': 'blue' })
@@ -385,5 +388,16 @@
   {
     $('#submit_unit_creation').click()
   }
+  // set today start
+  $(document).ready(function(){
+        var currentDate = new Date();
+        var year = currentDate.getFullYear();
+        var month = String(currentDate.getMonth() + 1).padStart(2, "0");
+        var day = String(currentDate.getDate()).padStart(2, "0");
+        var formattedDate = year + "-" + month + "-" + day;
+        $("#date_").val(formattedDate);
+    })
+    // set today end
+
 </script>
 {% endblock %}

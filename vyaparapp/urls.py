@@ -94,6 +94,10 @@ urlpatterns = [
     path('item_unit_create', views.item_unit_create, name='item_unit_create'),
     path('item_update/<int:pk>', views.item_update, name='item_update'),
     path('item_search_filter', views.item_search_filter, name='item_search_filter'),
+    path('item_get_detail/<int:pk>', views.item_get_detail, name='item_get_detail'),
+    path('item_get_details_for_modal_target/<int:pk>', views.item_get_details_for_modal_target, name='item_get_details_for_modal_target'),
+    path('ajust_quantity/<int:pk>', views.ajust_quantity, name='ajust_quantity'),
+    path('transaction_delete/<int:pk>', views.transaction_delete, name='transaction_delete'),
 
     # ========================================   ASHIKH V U (END) ======================================================
 

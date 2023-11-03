@@ -741,7 +741,11 @@ def item_create(request):
 def items_list(request):
   get_company_id_using_user_id = company.objects.get(user=request.user.id)
   all_items = ItemModel.objects.filter(company=get_company_id_using_user_id.id)
-  return render(request,'company/items_list.html',{'all_items':all_items,})
+  first_item = ItemModel.objects.filter().first()
+  transactions = TransactionModel.objects.filter(user=request.user.id,item=first_item.id).order_by('-trans_created_date')
+  return render(request,'company/items_list.html',{'all_items':all_items,
+                                                    'first_item':first_item,
+                                                    'transactions':transactions,})
 
 @login_required(login_url='login')
 def item_create_new(request):
@@ -757,9 +761,15 @@ def item_create_new(request):
     item_sale_price = request.POST.get('item_sale_price')
     item_purchase_price = request.POST.get('item_purchase_price')
     item_opening_stock = request.POST.get('item_opening_stock')
+    if item_opening_stock == '' :
+      item_opening_stock = 0
     item_at_price = request.POST.get('item_at_price')
+    if item_at_price == '':
+      item_at_price =0
     item_date = request.POST.get('item_date')
     item_min_stock_maintain = request.POST.get('item_min_stock_maintain')
+    if item_min_stock_maintain == '':
+      item_min_stock_maintain = 0
     item_data = ItemModel(user=user,
                           company=company_user_data,
                           item_name=item_name,
@@ -826,9 +836,15 @@ def item_update(request,pk):
     item_sale_price = request.POST.get('item_sale_price')
     item_purchase_price = request.POST.get('item_purchase_price')
     item_opening_stock = request.POST.get('item_opening_stock')
+    if item_opening_stock == '' :
+      item_opening_stock = 0
     item_at_price = request.POST.get('item_at_price')
+    if item_at_price == '':
+      item_at_price =0
     item_date = request.POST.get('item_date')
     item_min_stock_maintain = request.POST.get('item_min_stock_maintain')
+    if item_min_stock_maintain == '':
+      item_min_stock_maintain = 0
     item_data = ItemModel.objects.get(id=pk)
 
     item_data.user = user
@@ -848,7 +864,8 @@ def item_update(request,pk):
 
     item_data.save()
     print('\nupdated')
-  return redirect('item_view_or_edit',pk)
+  # return redirect('item_view_or_edit',pk)
+  return redirect('items_list')
 
   
 @login_required(login_url='login')
@@ -858,6 +875,59 @@ def item_search_filter(request):
   items_filtered = items_filtered.filter(Q(item_name__icontains=search_string))
   item_unit_name = request.POST.get('item_unit_name')
   return TemplateResponse(request,'company/item_search_filter.html',{'all_items':items_filtered})
+
+
+@login_required(login_url='login')
+def item_get_detail(request,pk):
+  item = ItemModel.objects.get(id=pk)
+  transactions = TransactionModel.objects.filter(user=request.user.id,item=item.id).order_by('-trans_created_date')
+  return TemplateResponse(request,'company/item_get_detail.html',{"item":item,
+                                                                  'transactions':transactions,})
+
+  
+@login_required(login_url='login')
+def item_get_details_for_modal_target(request,pk):
+  item = ItemModel.objects.get(id=pk)
+  return TemplateResponse(request,'company/item_get_details_for_modal_target.html',{"item":item,})
+
+
+@login_required(login_url='login')
+def ajust_quantity(request,pk):
+  if request.method=='POST':
+    item = ItemModel.objects.get(id=pk)
+
+    user = User.objects.get(id=request.user.id)
+    company_user_data = company.objects.get(user=request.user.id)
+    trans_type_check_checked = request.POST.get('trans_type')
+    if trans_type_check_checked == 'on':
+      trans_type = 'reduce stock'
+      trans_qty = request.POST.get('reduced_qty')
+    else:
+      trans_type = 'add stock'
+      trans_qty = request.POST.get('added_qty')
+    trans_user_name = user.first_name
+    trans_date = request.POST.get('trans_date')
+
+    adjusted_qty= request.POST.get('adjusted_qty')
+    item.item_opening_stock = adjusted_qty
+    item.save()
+    transaction_data = TransactionModel(user=user,
+                                        company=company_user_data,
+                                        item=item,
+                                        trans_type=trans_type,
+                                        trans_user_name=trans_user_name,
+                                        trans_date=trans_date,
+                                        trans_qty=trans_qty,)
+    transaction_data.save()
+  return redirect('items_list')
+
+
+@login_required(login_url='login')
+def transaction_delete(request,pk):
+  transaction = TransactionModel.objects.get(id=pk)
+  transaction.delete()
+  print('deleted')
+  return redirect('items_list')
 # ========================================   ASHIKH V U (END) ======================================================
 
 
