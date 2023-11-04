@@ -739,13 +739,16 @@ def item_create(request):
 
 @login_required(login_url='login')
 def items_list(request):
-  get_company_id_using_user_id = company.objects.get(user=request.user.id)
-  all_items = ItemModel.objects.filter(company=get_company_id_using_user_id.id)
-  first_item = ItemModel.objects.filter().first()
-  transactions = TransactionModel.objects.filter(user=request.user.id,item=first_item.id).order_by('-trans_created_date')
-  return render(request,'company/items_list.html',{'all_items':all_items,
-                                                    'first_item':first_item,
-                                                    'transactions':transactions,})
+  try:
+    get_company_id_using_user_id = company.objects.get(user=request.user.id)
+    all_items = ItemModel.objects.filter(company=get_company_id_using_user_id.id)
+    first_item = ItemModel.objects.filter().first()
+    transactions = TransactionModel.objects.filter(user=request.user.id,item=first_item.id).order_by('-trans_created_date')
+    return render(request,'company/items_list.html',{'all_items':all_items,
+                                                      'first_item':first_item,
+                                                      'transactions':transactions,})
+  except:
+    return render(request,'company/items_create_first_item.html')
 
 @login_required(login_url='login')
 def item_create_new(request):
@@ -789,6 +792,11 @@ def item_create_new(request):
     # print(f'item_name : {item_name}\nitem_hsn : {item_hsn}\nitem_unit : {item_unit}\nitem_taxable : {item_taxable}\n')
     # print(f'item_gst : {item_gst}\nitem_igst : {item_igst}\nitem_sale_price : {item_sale_price}\nitem_purchase_price : {item_purchase_price}\n')
     # print(f'item_opening_stock : {item_opening_stock}\nitem_at_price : {item_at_price}\nitem_date : {item_date}\nitem_min_stock_maintain : {item_min_stock_maintain}\n')
+    print(f"----------\n\n\n")
+    if request.POST.get('save_and_next'):
+      return redirect('item_create')
+    elif request.POST.get('save'):
+      return redirect('items_list')
   return redirect('item_create')
 
 
@@ -909,6 +917,7 @@ def ajust_quantity(request,pk):
     trans_date = request.POST.get('trans_date')
 
     adjusted_qty= request.POST.get('adjusted_qty')
+    trans_current_qty = item.item_opening_stock
     item.item_opening_stock = adjusted_qty
     item.save()
     transaction_data = TransactionModel(user=user,
@@ -917,7 +926,8 @@ def ajust_quantity(request,pk):
                                         trans_type=trans_type,
                                         trans_user_name=trans_user_name,
                                         trans_date=trans_date,
-                                        trans_qty=trans_qty,)
+                                        trans_qty=trans_qty,
+                                        trans_current_qty=trans_current_qty,)
     transaction_data.save()
   return redirect('items_list')
 
@@ -927,6 +937,45 @@ def transaction_delete(request,pk):
   transaction = TransactionModel.objects.get(id=pk)
   transaction.delete()
   print('deleted')
+  return redirect('items_list')
+
+  
+@login_required(login_url='login')
+def item_transaction_view_or_edit(request,pk,tran):
+  item = ItemModel.objects.get(id=pk)
+  transaction = TransactionModel.objects.get(id=tran)
+  return TemplateResponse(request,'company/item_transaction_view_or_edit.html',{"item":item,
+                                                                                "transaction":transaction,})
+
+
+@login_required(login_url='login')
+def update_adjusted_transaction(request,pk,tran):
+  item = ItemModel.objects.get(id=pk)
+  transaction = TransactionModel.objects.get(id=tran)
+  if request.method=='POST':
+    item = ItemModel.objects.get(id=pk)
+
+    user = User.objects.get(id=request.user.id)
+    company_user_data = company.objects.get(user=request.user.id)
+    trans_type_check_checked = request.POST.get('trans_type')
+    if trans_type_check_checked == 'on':
+      trans_type = 'reduce stock'
+      trans_qty = request.POST.get('reduced_qty')
+    else:
+      trans_type = 'add stock'
+      trans_qty = request.POST.get('added_qty')
+    trans_user_name = user.first_name
+    trans_date = request.POST.get('trans_date')
+
+    adjusted_qty= request.POST.get('adjusted_qty')
+    trans_current_qty = item.item_opening_stock
+    item.item_opening_stock = adjusted_qty
+    item.save()
+    transaction.trans_type =trans_type
+    transaction.trans_date=trans_date
+    transaction.trans_qty =trans_qty
+    transaction.trans_current_qty=trans_current_qty
+    transaction.save()
   return redirect('items_list')
 # ========================================   ASHIKH V U (END) ======================================================
 

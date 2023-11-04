@@ -109,6 +109,7 @@ class TransactionModel(models.Model):
     trans_user_name = models.CharField(max_length=255)
     trans_date = models.DateTimeField()
     trans_qty = models.PositiveBigIntegerField(default=0)
+    trans_current_qty = models.PositiveBigIntegerField(default=0)
     trans_price = models.PositiveBigIntegerField(default=0)
     trans_status = models.CharField(max_length=255)
     trans_created_date = models.DateTimeField(auto_now_add=True,null=True)

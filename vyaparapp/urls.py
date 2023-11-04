@@ -98,6 +98,8 @@ urlpatterns = [
     path('item_get_details_for_modal_target/<int:pk>', views.item_get_details_for_modal_target, name='item_get_details_for_modal_target'),
     path('ajust_quantity/<int:pk>', views.ajust_quantity, name='ajust_quantity'),
     path('transaction_delete/<int:pk>', views.transaction_delete, name='transaction_delete'),
+    path('item_transaction_view_or_edit/<int:pk>/<int:tran>', views.item_transaction_view_or_edit, name='item_transaction_view_or_edit'),
+    path('update_adjusted_transaction/<int:pk>/<int:tran>', views.update_adjusted_transaction, name='update_adjusted_transaction'),
 
     # ========================================   ASHIKH V U (END) ======================================================
 
