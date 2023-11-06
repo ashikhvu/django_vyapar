@@ -30,7 +30,7 @@
         <div class="row">
             <div class="col-sm-12 col-lg-4">
                 <label for="">ITEM QUANTITY</label>
-                <input id="item_quantity" style="font-weight: 900;color: black;background-color: white;" value="{{ item.item_opening_stock }}" disabled class="form-control fs-5">
+                <input id="item_quantity" style="font-weight: 900;color: black;background-color: white;" value="{{ item.item_current_stock }}" disabled class="form-control fs-5" name="item_qty">
             </div>
             <div id="add__qty" class="col-sm-12 col-lg-4">
                 <label for="">ADD QUANTITY</label>
@@ -60,7 +60,8 @@
 
 <script>
     function submit_function(){  
-        $('#adj_quantity').attr('disabled',false)      
+        $('#adj_quantity').attr('disabled',false)    
+        $('#item_quantity').attr('disabled',false)  
         $('#cls_btn').click()
         setInterval(function(){
             $('#sbmt_btn').click()

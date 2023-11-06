@@ -31,7 +31,7 @@
         <div class="row">
             <div class="col-sm-12 col-lg-4">
                 <label for="">ITEM QUANTITY</label>
-                <input id="item_quantity" style="font-weight: 900;color: black;background-color: white;" value="{{ transaction.trans_current_qty }}" disabled class="form-control fs-5">
+                <input id="item_quantity" style="font-weight: 900;color: black;background-color: white;" value="{{ transaction.trans_current_qty }}"  class="form-control fs-5" name="item_qty">
             </div>
             <div id="add__qty" class="col-sm-12 col-lg-4">
                 <label for="">ADD QUANTITY</label>
@@ -43,7 +43,7 @@
             </div>
             <div class="col-sm-12 col-lg-4">
                 <label for="">ADJUSTED QUANTITY</label>
-                <input id="adj_quantity" style="font-weight: 900;color: black;background-color: white;" class="form-control fs-5" type="number" value="{{ item.item_opening_stock }}" disabled required name="adjusted_qty">
+                <input id="adj_quantity" style="font-weight: 900;color: black;background-color: white;" class="form-control fs-5" type="number" {% if transaction.trans_type == 'reduce stock' %}value="{{ transaction.trans_current_qty|sub:transaction.trans_qty }}"  {% else %}value="{{ transaction.trans_current_qty|add:transaction.trans_qty }}"  {% endif %} disabled required name="adjusted_qty">
             </div>
         </div>
         </div>
@@ -59,6 +59,7 @@
 
 
 <script>
+    // alert('{{ transaction.trans_type }}')
     $(document).ready(function(){
         var type = '{{ transaction.trans_type }}'
         if(type !== 'add stock')
@@ -69,7 +70,8 @@
         }
     })
     function submit_function(){  
-        $('#adj_quantity').attr('disabled',false)      
+        $('#adj_quantity').attr('disabled',false)   
+        $('#item_quantity').attr('disabled',false)     
         $('#cls_btn').click()
         setInterval(function(){
             $('#sbmt_btn').click()

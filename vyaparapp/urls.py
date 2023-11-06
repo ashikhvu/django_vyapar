@@ -100,6 +100,7 @@ urlpatterns = [
     path('transaction_delete/<int:pk>', views.transaction_delete, name='transaction_delete'),
     path('item_transaction_view_or_edit/<int:pk>/<int:tran>', views.item_transaction_view_or_edit, name='item_transaction_view_or_edit'),
     path('update_adjusted_transaction/<int:pk>/<int:tran>', views.update_adjusted_transaction, name='update_adjusted_transaction'),
+    path('item_delete_open_stk/<int:pk>',views.item_delete_open_stk,name='item_delete_open_stk'),
 
     # ========================================   ASHIKH V U (END) ======================================================
 

@@ -1,3 +1,5 @@
+<form action="" method="post">
+    {% csrf_token %}
 <table class="table w-100 table-light table-striped table-hover">
     <thead class="bg-primary">
         <th class="text-start fs-2 tb">ITEM</th>
@@ -6,7 +8,11 @@
     <tbody>
         {% for i in all_items %}
         <tr class="item_lists_hide">
-            <td style="cursor:pointer" class="text-start fs-2 fw-bold text-dark">{{ i.item_name|capfirst }}</td>
+            <td style="cursor:pointer" class="text-start fs-2 fw-bold text-dark"
+            hx-post="{% url 'item_get_detail' i.id %}"
+            hx-trigger="click delay:0s"
+            hx-target="#item_get_detail_target"
+            >{{ i.item_name|capfirst }}</td>
             <td class="text-end fs-2 fw-bolder" style="color: green;">
                 {{ i.item_opening_stock }}
                 <div class="btn-group mb-1">
@@ -23,5 +29,6 @@
         {% endfor %}
     </tbody>
 </table>
+</form>
 
 <!-- <h1>asdasd</h1> -->

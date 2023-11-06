@@ -113,7 +113,7 @@
                           <option value="PACKET"{% if item.item_unit == 'PACKET' %}selected{% endif %}>PACKET</option>
                           {% if item_units %}
                             {% for i in item_units %}
-                            <option value="{{ i.unit_name }}"{% if item.item_unit == i.unit_name %}selected{% endif %}>{{ i.unit_name }}</option>
+                            <option value="{{ i.unit_name }}"{% if item.item_unit|lower == i.unit_name %}selected{% endif %}>{{ i.unit_name|upper }}</option>
                             <h1>{{ i.unit_name }}</h1>
                             <h1>{{ item.item_unit }}</h1>
                             {% endfor %}
@@ -170,7 +170,7 @@
                           </div>
 
                           <!-- pricing template start -->
-                          <div id="pricing_template">
+                          <div id="pricing_template" style="background-color: rgba(144, 211, 117, 0.098);">
                             <div class="row">
                               <div  class="col-sm-12 col-md-1">
 
@@ -188,7 +188,7 @@
                                     <div class="d-flex">
                                       <div class="w-50 me-3">
                                         <label class="fw-bold tb fs-3" for="">GST</label><br>
-                                        <select style="color: black;" class="form-control fw- border-secondary fs-3" id="" placeholder="GST" name="item_gst" >
+                                        <select style="color: black;background-color: white;" class="form-control fw- border-secondary fs-3" id="" placeholder="GST" name="item_gst" >
                                           <option value="GST0[0%]"{% if item.item_gst == 'GST0[0%]' %}selected{% endif %}>GST0[0%]</option>
                                           <option value="GST0[3%]"{% if item.item_gst == 'GST0[3%]' %}selected{% endif %}>GST0[3%]</option>
                                           <option value="GST0[5%]"{% if item.item_gst == 'GST0[5%]' %}selected{% endif %}>GST0[5%]</option>
@@ -199,7 +199,7 @@
                                       </div>
                                       <div class="w-50">
                                         <label class="fw-bold tb fs-3" for="">IGST</label><br>
-                                        <select style="color: black;" class="form-control fw- border-secondary tb fs-3" id="" placeholder="GST" name="item_igst" >
+                                        <select style="color: black;background-color: white;" class="form-control fw- border-secondary tb fs-3" id="" placeholder="GST" name="item_igst" >
                                           <option value="IGST0[0%]"{% if item.item_igst == 'IGST0[0%]' %}selected{% endif %}>IGST0[0%]</option>
                                           <option value="IGST0[3%]"{% if item.item_igst == 'IGST0[3%]' %}selected{% endif %}>IGST0[3%]</option>
                                           <option value="IGST0[5%]"{% if item.item_igst == 'IGST0[5%]' %}selected{% endif %}>IGST0[5%]</option>
@@ -214,11 +214,11 @@
                                   <div class="d-flex">
                                     <div class="w-50 me-3">
                                       <label class="tb fw-bold" for="pur_price">SALES PRICE</label><br>
-                                      <input style="color: black;" id="sal_price" class="form-control fw-normal border-secondary  fs-3" type="number" placeholder="Sales Price here" value="{{ item.item_sale_price }}" name="item_sale_price" required>
+                                      <input style="color: black;background-color: white;" id="sal_price" class="form-control fw-normal border-secondary  fs-3" type="number" placeholder="Sales Price here" value="{{ item.item_sale_price }}" name="item_sale_price" required>
                                     </div>
                                     <div class="w-50">
                                       <label class="tb fw-bold" for="">PURCHASE PRICE</label><br>
-                                      <input style="color: black;" id="pur_price" class="form-control fw-normal border-secondary  fs-3" type="number" placeholder="Purchase Price here" value="{{ item.item_purchase_price }}" name="item_purchase_price" required>
+                                      <input style="color: black;background-color: white;" id="pur_price" class="form-control fw-normal border-secondary  fs-3" type="number" placeholder="Purchase Price here" value="{{ item.item_purchase_price }}" name="item_purchase_price" required>
                                     </div>
                                   </div>
                                   <div class="text-start mt-5">
@@ -234,7 +234,7 @@
 
 
                           <!-- stock template start -->
-                          <div hidden id="stock_template">
+                          <div hidden id="stock_template" style="background-color: rgba(144, 211, 117, 0.098);">
                             <div class="row">
                               <div  class="col-sm-12 col-md-1">
 
@@ -244,22 +244,22 @@
                                   <div class="d-flex">
                                     <div class="w-50 me-3">
                                       <label class="tb fw-bold" for="opn_stock_">OPENING STOCK</label><br>
-                                      <input style="color: black;" id="opn_stock_" class="form-control fw-normal border-secondary  fs-3" type="number" placeholder="Opening Stock here"value="{% if item.item_purchase_price %}{{ item.item_purchase_price }}{% else %}0{% endif %}" name="item_opening_stock">
+                                      <input style="color: black;background-color: white;" id="opn_stock_" class="form-control fw-normal border-secondary  fs-3" type="number" placeholder="Opening Stock here"value="{% if item.item_opening_stock %}{{ item.item_opening_stock }}{% else %}0{% endif %}" name="item_opening_stock">
                                     </div>
-                                    <div id="at_price_div" {% if item.item_opening_stock %}{% else %}style="visibility: hidden;"{% endif %} class="w-50">
+                                    <div id="at_price_div" {% if item.item_opening_stock != 0 %}{% else %}style="visibility: hidden;"{% endif %} class="w-50">
                                       <label class="tb fw-bold" for="at_price">AT PRICE</label><br>
-                                      <input style="color: black;" id="at_price" class="form-control fw-normal border-secondary  fs-3" type="number" placeholder="At Price here"value="{% if item.item_purchase_price %}{{ item.item_at_price }}{% else %}0{% endif %}" name="item_at_price">
+                                      <input style="color: black;background-color: white;" id="at_price" class="form-control fw-normal border-secondary  fs-3" type="number" placeholder="At Price here"value="{% if item.item_at_price %}{{ item.item_at_price }}{% else %}0{% endif %}" name="item_at_price">
                                     </div>
                                   </div>
                                   <br>
                                   <div class="d-flex">
                                     <div class="w-50 me-3">
                                       <label class="tb fw-bold" for="date_">DATE</label><br>
-                                      <input style="color: black;" id="date_" class="form-control fw-normal border-secondary  fs-3" type="date" placeholder=""required value="{{ item.item_date|date:'Y-m-d' }}" name="item_date">
+                                      <input style="color: black;background-color: white;" id="date_" class="form-control fw-normal border-secondary  fs-3" type="date" placeholder=""required value="{{ item.item_date|date:'Y-m-d' }}" name="item_date">
                                     </div>
                                     <div class="w-50">
                                       <label class="tb fw-bold" for="at_price">MINIMUM STOCK TO MAINTAIN</label><br>
-                                      <input style="color: black;" id="at_price" class="form-control fw-normal border-secondary  fs-3" type="number" placeholder="Purchase Price here"value="{% if item.item_min_stock_maintain %}{{ item.item_min_stock_maintain }}{% else %}0{% endif %}" name="item_min_stock_maintain">
+                                      <input style="color: black;background-color: white;" id="at_price" class="form-control fw-normal border-secondary  fs-3" type="number" placeholder="Purchase Price here"value="{% if item.item_min_stock_maintain %}{{ item.item_min_stock_maintain }}{% else %}0{% endif %}" name="item_min_stock_maintain">
                                     </div>
                                   </div>
                                   <div class="text-start mt-5">
@@ -375,8 +375,8 @@
   //   })
   // })
   // page loading end
-  $('#opn_stock_').on('keyup',function(){
-    if($(this).val()!=='')
+  $('#opn_stock_').on('keyup click',function(){
+    if($(this).val()>'0')
     {
       $('#at_price_div').css({'visibility':'visible',
                               'transition':'all 0.2s linear'})
@@ -384,6 +384,7 @@
     else{
       $('#at_price_div').css({'visibility':'hidden',
                               'transition':'all 0.2s linear'})
+      $('#at_price').val('')
     }
   })
   $(document).ready(function(){
@@ -409,16 +410,16 @@
     {
         swal({
             title: "Confirmation !",
-            text: "Do you want to Delete this item?",
-            icon: "warning",
+            text: "Do you want to save the changes?",
+            icon: "info",
             buttons: true,
             dangerMode: true,
         })
         .then((willDelete) => {
             if (willDelete) {
                 swal({
-                    title: "Deleted !",
-                    text: "Item Deleted Successfilly!",
+                    title: "Updated !",
+                    text: "Item Updated Successfilly!",
                     icon: "success",
                     buttons: false,
                 })

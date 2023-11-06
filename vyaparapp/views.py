@@ -1,3 +1,5 @@
+from http.client import HTTPResponse
+from sre_constants import SUCCESS
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render,redirect
 from django.contrib.auth.models import User, auth
@@ -730,6 +732,7 @@ def distributor_profile(request):
 
 # ========================================   ASHIKH V U (START) ======================================================
 from django.template.response import TemplateResponse
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 
 @login_required(login_url='login')
@@ -764,14 +767,16 @@ def item_create_new(request):
     item_sale_price = request.POST.get('item_sale_price')
     item_purchase_price = request.POST.get('item_purchase_price')
     item_opening_stock = request.POST.get('item_opening_stock')
-    if item_opening_stock == '' :
+    item_current_stock = item_opening_stock
+    if item_opening_stock == '' or None :
       item_opening_stock = 0
+      item_current_stock = 0
     item_at_price = request.POST.get('item_at_price')
-    if item_at_price == '':
+    if item_at_price == '' or None:
       item_at_price =0
     item_date = request.POST.get('item_date')
     item_min_stock_maintain = request.POST.get('item_min_stock_maintain')
-    if item_min_stock_maintain == '':
+    if item_min_stock_maintain == ''  or None:
       item_min_stock_maintain = 0
     item_data = ItemModel(user=user,
                           company=company_user_data,
@@ -784,6 +789,7 @@ def item_create_new(request):
                           item_sale_price=item_sale_price,
                           item_purchase_price=item_purchase_price,
                           item_opening_stock=item_opening_stock,
+                          item_current_stock=item_current_stock,
                           item_at_price=item_at_price,
                           item_date=item_date,
                           item_min_stock_maintain=item_min_stock_maintain)
@@ -824,12 +830,13 @@ def item_unit_create(request):
     item_unit_name = request.POST.get('item_unit_name')
     unit_data = UnitModel(user=user,company=company_user_data,unit_name=item_unit_name)
     unit_data.save()
-  return redirect('item_create')
+  return JsonResponse({'message':'asdasd'})
 
   
 @login_required(login_url='login')
 def item_update(request,pk):
   if request.method=='POST':
+    item_data = ItemModel.objects.get(id=pk)
     user = User.objects.get(id=request.user.id)
     company_user_data = company.objects.get(user=request.user.id)
     item_name = request.POST.get('item_name')
@@ -844,8 +851,15 @@ def item_update(request,pk):
     item_sale_price = request.POST.get('item_sale_price')
     item_purchase_price = request.POST.get('item_purchase_price')
     item_opening_stock = request.POST.get('item_opening_stock')
+    item_current_stock = item_opening_stock
     if item_opening_stock == '' :
       item_opening_stock = 0
+      item_current_stock = 0
+    else:
+      if int(item_opening_stock) > item_data.item_opening_stock:
+        item_data.item_current_stock += (int(item_opening_stock) - item_data.item_opening_stock)
+      else:
+        item_data.item_current_stock -= (int(item_opening_stock) - item_data.item_opening_stock)
     item_at_price = request.POST.get('item_at_price')
     if item_at_price == '':
       item_at_price =0
@@ -853,7 +867,6 @@ def item_update(request,pk):
     item_min_stock_maintain = request.POST.get('item_min_stock_maintain')
     if item_min_stock_maintain == '':
       item_min_stock_maintain = 0
-    item_data = ItemModel.objects.get(id=pk)
 
     item_data.user = user
     item_data.company_user_data = company_user_data
@@ -866,6 +879,7 @@ def item_update(request,pk):
     item_data.item_sale_price = item_sale_price
     item_data.item_purchase_price = item_purchase_price
     item_data.item_opening_stock = item_opening_stock
+    item_data.item_current_stock = int(item_current_stock)
     item_data.item_at_price = item_at_price
     item_data.item_date = item_date
     item_data.item_min_stock_maintain = item_min_stock_maintain
@@ -916,9 +930,9 @@ def ajust_quantity(request,pk):
     trans_user_name = user.first_name
     trans_date = request.POST.get('trans_date')
 
-    adjusted_qty= request.POST.get('adjusted_qty')
+    trans_adjusted_qty= request.POST.get('adjusted_qty')
     trans_current_qty = item.item_opening_stock
-    item.item_opening_stock = adjusted_qty
+    item.item_current_stock = trans_adjusted_qty
     item.save()
     transaction_data = TransactionModel(user=user,
                                         company=company_user_data,
@@ -927,7 +941,8 @@ def ajust_quantity(request,pk):
                                         trans_user_name=trans_user_name,
                                         trans_date=trans_date,
                                         trans_qty=trans_qty,
-                                        trans_current_qty=trans_current_qty,)
+                                        trans_current_qty=trans_adjusted_qty,
+                                        trans_adjusted_qty=trans_adjusted_qty,)
     transaction_data.save()
   return redirect('items_list')
 
@@ -935,8 +950,21 @@ def ajust_quantity(request,pk):
 @login_required(login_url='login')
 def transaction_delete(request,pk):
   transaction = TransactionModel.objects.get(id=pk)
+  item = ItemModel.objects.get(id=transaction.item_id)
+  print(transaction.trans_type)
+  if transaction.trans_type=='add stock':
+    print('add')
+    item.item_current_stock = item.item_current_stock - transaction.trans_qty
+    print(item.item_name)
+    print(item.item_current_stock)
+    print(item.item_current_stock)
+    print(transaction.trans_qty)
+    print(item.item_current_stock - transaction.trans_qty)
+  else:
+    print('reduce')
+    item.item_current_stock = item.item_current_stock + transaction.trans_qty
+  item.save()
   transaction.delete()
-  print('deleted')
   return redirect('items_list')
 
   
@@ -944,6 +972,7 @@ def transaction_delete(request,pk):
 def item_transaction_view_or_edit(request,pk,tran):
   item = ItemModel.objects.get(id=pk)
   transaction = TransactionModel.objects.get(id=tran)
+  print('enterd')
   return TemplateResponse(request,'company/item_transaction_view_or_edit.html',{"item":item,
                                                                                 "transaction":transaction,})
 
@@ -968,8 +997,24 @@ def update_adjusted_transaction(request,pk,tran):
     trans_date = request.POST.get('trans_date')
 
     adjusted_qty= request.POST.get('adjusted_qty')
-    trans_current_qty = item.item_opening_stock
-    item.item_opening_stock = adjusted_qty
+    trans_current_qty = request.POST.get('item_qty')
+    if transaction.trans_type == 'reduce stock':
+      if trans_type == 'reduce stock':
+        print('reduce to reduce')
+        item.item_current_stock = item.item_current_stock - (int(trans_qty)  - transaction.trans_qty)
+      else:
+        print('reduce to add')
+        print(f'{trans_qty}-{transaction.trans_qty}={((int(trans_qty)  - transaction.trans_qty))}')
+        item.item_current_stock = item.item_current_stock + transaction.trans_qty + int(trans_qty)
+    else:
+      if trans_type == 'reduce stock':
+        print('add to red')
+        item.item_current_stock = item.item_current_stock - (int(trans_qty)  + transaction.trans_qty)
+      else:
+        print('add to add')
+        print(f'{trans_qty}-{transaction.trans_qty}={((int(trans_qty)  - transaction.trans_qty))}')
+        item.item_current_stock = item.item_current_stock - transaction.trans_qty + int(trans_qty)
+    # item.item_opening_stock = adjusted_qty
     item.save()
     transaction.trans_type =trans_type
     transaction.trans_date=trans_date
@@ -977,10 +1022,19 @@ def update_adjusted_transaction(request,pk,tran):
     transaction.trans_current_qty=trans_current_qty
     transaction.save()
   return redirect('items_list')
+
+@login_required(login_url='login')
+def item_delete_open_stk(request,pk):
+  item = ItemModel.objects.get(id=pk)
+  if item.item_opening_stock > item.item_current_stock:
+    item.item_current_stock =item.item_opening_stock - item.item_current_stock
+  else:
+    item.item_current_stock =item.item_current_stock - item.item_opening_stock
+  # item.item_current_stock =  item.item_opening_stock - item.item_current_stock
+  item.item_opening_stock = 0
+  # print(f'{item.item_current_stock }={item.item_opening_stock}-{item.item_current_stock}')
+  item.save()
+  return redirect('items_list')
+
+
 # ========================================   ASHIKH V U (END) ======================================================
-
-
-
-
-
-
